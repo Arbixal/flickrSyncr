@@ -50,7 +50,7 @@
     require_once ( 'include/phpCLI.class.php' );
     require_once ( 'include/phpFlickr.class.php' );
     require_once ( 'include/flickrSyncr.conf.php' );
-            
+
     // New instance of logger
     $log = new KLogger ( $cfg['log_folder'], $cfg['log_level'] );
 
@@ -64,14 +64,14 @@
 
     // New instance of PHPFlickr
     $f = new phpFlickr ( $cfg['api_key'], $cfg['api_secret'] ) ;
-   
+
     // New instance of flickrSyncr functions
     $fsf = new flickrSyncrFunc ( $cfg, $cli, $f, $log );
     // Process arguments or use the debug ones
     $fsf->processArgs ( );
 
     // New instance of flickrSyncr SQLite
-    $db = new flickrSyncrSQLite ( $f, $cfg, $fsf->args, $log );
+    $db = new flickrSyncrSQLite ( $fsf->args, $cfg, $f, $log );
 
     // Check Flickr credentials
     $credentials = $fsf->connectToFlickr ( 'delete' );
@@ -86,7 +86,7 @@
 
     // Consolidate the allowed file types
     $allowed_filetypes = $fsf->getAllowedExtensions ( );
-    
+
     // Cleanup log folder
     $dirIterator            = new RecursiveDirectoryIterator ( $cfg['log_folder'], FilesystemIterator::SKIP_DOTS | FilesystemIterator::UNIX_PATHS );
     $iterator               = new RecursiveIteratorIterator ( $dirIterator );
@@ -117,12 +117,13 @@
 
         $fileList = iterator_to_array ( $iterator , true );
         natsort ( $fileList );
-        
+
         // Parse the list of files returned
         foreach ($fileList as $filePath => $fileInfo)
         {
             // Add the file to the database
-            $file = prepareFileInfo ( $fileInfo );
+            $file = $fsf->prepareFileInfo ( $fileInfo );
+            $log->logNotice( 'Uploading file: ' . $file['filename'] );
             $db->addFile ( $file );
         }
 

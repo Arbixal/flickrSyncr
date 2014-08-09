@@ -183,9 +183,9 @@
             return $credentials;
         }
 
-        function prepareFileInfo ( )
+        function prepareFileInfo ( $fileInfo )
         {
-            $pathInfo = pathinfo ( $this->fileInfo );
+            $pathInfo = pathinfo ( $fileInfo );
 
             $this->file['dirname']      = substr ( $pathInfo['dirname'], strlen ( $this->args['upload'] ), strlen ( $pathInfo['dirname'] ) );
             $this->file['filename']     = $pathInfo['filename'];

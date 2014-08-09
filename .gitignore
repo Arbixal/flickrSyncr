@@ -2,3 +2,6 @@
 /test
 /include/flickrSyncr.conf.php
 /.project
+/log
+/profile.token
+/*.sqlite3
