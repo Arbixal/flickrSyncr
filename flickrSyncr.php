@@ -118,16 +118,28 @@
         $fileList = iterator_to_array ( $iterator , true );
         natsort ( $fileList );
 
+        $log->logNotice ( count($fileList) . ' files found');
+
+        $fileAddCount = 0;
+        $fileCount = 0;
+
         // Parse the list of files returned
         foreach ($fileList as $filePath => $fileInfo)
         {
             // Add the file to the database
             $file = $fsf->prepareFileInfo ( $fileInfo );
-            $log->logNotice( 'Uploading file: ' . $file['filename'] );
-            $db->addFile ( $file );
+            $fileCount++;
+            $flagFileAdded = $db->addFile ( $file );
+            if ( $flagFileAdded )
+            {
+            	$fileAddCount++;
+            	$log->logNotice( 'Uploaded file: ' . $file['filename'] );
+            }
         }
 
-        createCollectionIcons ( );
+        $log->logNotice ('Uploaded ' . $fileAddCount . ' files, ' . ($fileCount-$fileAddCount) . ' were skipped');
+
+        $fsf->createCollectionIcons ( );
 
         $log->logNotice ( 'Uploading files to FLICKR is done' );
     }
@@ -157,13 +169,13 @@
         $log->logNotice ( 'Flushing files files from FLICKR' );
 
         // Delete all collections
-        deleteCollections ( $f, $log );
+        $fsf->deleteCollections ( $f, $log );
 
         // Deletes all sets and their files
-        deleteSets ( $f, $log );
+        $fsf->deleteSets ( $f, $log );
 
         // Delete remaining files
-        deleteFiles ( $f, $log, $credentials );
+        $fsf->deleteFiles ( $f, $log, $credentials );
 
         // Delete DB File
         $db->dbClose ( );

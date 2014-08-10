@@ -395,7 +395,7 @@
 
             if ( $result != false)
             {
-                $result = getRecursiveArray ( $result, 'collection', 'id' );
+                $result = $this->getRecursiveArray ( $result, 'collection', 'id' );
                 if ( $result != NULL )
                 {
                     foreach ( $result as $collection_name => $collection_id )
@@ -440,7 +440,7 @@
                             $newArr[] = $arrValue[$i][$arrayKey];
                         }
                     }
-                    getRecursiveArray ( $arrValue, $arrayName, $arrayKey, $newArr );
+                    $this->getRecursiveArray ( $arrValue, $arrayName, $arrayKey, $newArr );
                 }
             }
             return $newArr;
@@ -464,7 +464,7 @@
             }
             else
             {
-                if( in_array($this->current()->getExtension(), self::$ALLOW_EXTENSIONS_FILTERS, true ) )
+                if( in_array(strtolower($this->current()->getExtension()), self::$ALLOW_EXTENSIONS_FILTERS, true ) )
                 {
                     return true;
                 }

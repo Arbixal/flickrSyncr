@@ -118,6 +118,12 @@
 
             $path = $file['dirname'] . DIR_SEPARATOR . $file['basename'];
 
+            if ( $results == false )
+            {
+            	$this->log->logError ( 'Error adding file ' . $file['filename'] );
+            	return (false);
+            }
+
             if ( ! $result )
             {
                 $fileFlickrId = $this->uploadFileToFlickr ( $file );
@@ -296,11 +302,28 @@
                 }
                 else
                 {
-                    $setFlickrId = $result['flickr_id'];
-                    if ( $this->addToSetOnFlickr ( $setFlickrId, $fileFlickrId ) == false )
-                    {
-                        return false;
-                    }
+									$query2 = $this->prepare ( 'SELECT parent_set_flickr_id FROM files WHERE flickr_id = :flickr_id' );
+            			$query2->bindValue ( ':flickr_id', $fileFlickrId );
+            			$results2 = $query2->execute ( );
+            			$result2 = $results2->fetchArray ( SQLITE3_ASSOC );
+
+            			if ( !$result2 || $result2['parent_set_flickr_id'] == null )
+            			{
+	                  $setFlickrId = $result['flickr_id'];
+	                  if ( $this->addToSetOnFlickr ( $setFlickrId, $fileFlickrId ) == false )
+	                  {
+	                      return false;
+	                  }
+                  }
+                  else
+                  {
+                  	$this->log->logDebug ( 'DB - File is already linked to a set' );
+                  	$this->log->logDebug ( '     FILE flickr_id='. $fileFlickrId );
+                  	$this->log->logDebug ( '     FILE name=' . $file['filename'] );
+                  	$this->log->logDebug ( '     SET flickr_id=' . $result2['parent_set_flickr_id'] );
+                  	$this->log->logDebug ( '     SET title=' . $set['title'] );
+                  	return (false);
+                  }
                 }
 
                 // Link FILE to SET
